@@ -26,18 +26,24 @@
 @code {
     private bool IsUserAuthenticated;
 
+    // Provodi se pri inicijalizaciji stranice
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         IsUserAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+
+        // Osiguranje da je stanje autentifikacije ažurirano
+        // Ovdje se ne mora ponovno pozivati NotifyAuthenticationStateChanged jer to radimo u CustomAuthenticationStateProvider
     }
 
+    // Funkcija za odjavu korisnika
     private async Task HandleLogout()
     {
-        // Zamijenjena metoda MarkUserAsLoggedOut s LogoutUserAsync
         if (AuthenticationStateProvider is CustomAuthenticationStateProvider customAuthStateProvider)
         {
-            await customAuthStateProvider.LogoutUserAsync(); // ispravljena metoda za logout
+            // Pozivamo LogoutUserAsync da uklonimo korisnika iz sesije
+            await customAuthStateProvider.LogoutUserAsync();
+            // Preusmjeravanje na stranicu za prijavu
             Navigation.NavigateTo("/login", true);
         }
     }

@@ -89,6 +89,7 @@
     {
         await CustomAuthStateProvider.LogoutUserAsync(); // Koristi metodu za logout
         Navigation.NavigateTo("/", forceLoad: true); // Preusmjeri na početnu
+        Console.WriteLine("Login successful");
     }
 
     protected override async Task OnInitializedAsync()
