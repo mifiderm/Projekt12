@@ -137,6 +137,11 @@
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         isUserLoggedIn = authState.User.Identity?.IsAuthenticated ?? false;
+
+        if (isUserLoggedIn)
+        {
+            Navigation.NavigateTo("/"); // Ako je korisnik već prijavljen, preusmjeri na početnu
+        }
     }
 
     private async Task HandleLogin()
@@ -146,8 +151,8 @@
 
         if (isAuthenticated)
         {
-            isUserLoggedIn = true; // Ažuriraj stanje prijave
-            Navigation.NavigateTo("/", false); // false umjesto true za izbjegavanje ponovnog učitavanja
+            isUserLoggedIn = true;
+            Navigation.NavigateTo("/"); // Preusmjeriti na početnu nakon uspješne prijave
         }
         else
         {
@@ -160,6 +165,6 @@
         var authProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
         await authProvider.LogoutUserAsync();
         isUserLoggedIn = false;
-        Navigation.NavigateTo("/login", true); // true kako bi se stranica učitala nakon odjave
+        Navigation.NavigateTo("/login", true); // Ponovno učitaj login stranicu nakon odjave
     }
 }
