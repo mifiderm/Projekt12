@@ -48,7 +48,6 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         _initialized = true;
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
-        await AddDefaultUser(); // Pozivamo metodu koja dodaje korisnika
         await Task.Delay(100); // Simulacija čekanja
     }
 
@@ -95,31 +94,5 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         var storedUser = await _sessionStorage.GetAsync<string>("authUser");
         return storedUser.Success ? storedUser.Value : null;
-    }
-
-    // Registracija korisnika (ovdje samo unosimo jednu korisničku lozinku i email)
-    public async Task AddDefaultUser()
-    {
-        // Provjera da li korisnik već postoji u bazi
-        var existingUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == "mia.vekic82@gmail.com");
-        if (existingUser != null)
-        {
-            return; // Ako korisnik već postoji, ne radimo ništa
-        }
-
-        // Hashiranje lozinke
-        string password = "123"; // Lošinka koju želiš pohraniti
-        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
-
-        // Kreiranje novog korisnika
-        var user = new User
-        {
-            Email = "mia.vekic82@gmail.com",
-            PasswordHash = hashedPassword
-        };
-
-        // Spremanje korisnika u bazu
-        _dbContext.Users.Add(user);
-        await _dbContext.SaveChangesAsync();
     }
 }
