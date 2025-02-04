@@ -7,6 +7,9 @@ namespace IznajmljivanjeAutomobila.Models
     {
         public int Id { get; set; }
 
+        public int AutomobilId { get; set; }  // Strani ključ prema Automobilu
+        public Automobil Automobil { get; set; }  // Navigacija prema Automobilu
+
         [Required(ErrorMessage = "Ime je obavezno")]
         [StringLength(100, ErrorMessage = "Ime ne može biti duže od 100 znakova")]
         public string? Ime { get; set; }

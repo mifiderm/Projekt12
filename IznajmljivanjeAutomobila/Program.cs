@@ -1,35 +1,48 @@
-using IznajmljivanjeAutomobila.Data;  // Za ApplicationDbContext
-using Microsoft.EntityFrameworkCore;  // Za korištenje Entity Framework Core
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+ï»¿using IznajmljivanjeAutomobila.Data;
 using IznajmljivanjeAutomobila.Services;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.EntityFrameworkCore;
+using System;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
-builder.Services.AddScoped<AutomobilService>();
-
-
-// Dodaj ApplicationDbContext sa vezom prema bazi podataka
+// Konfiguracija za DBContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Dodavanje servisa za Blazor i autorizaciju
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+
+
+// Postavljanje AuthenticationStateProvider-a
+builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddAuthorizationCore();
+
+
+
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Automatska migracija baze
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+}
+
+// Middleware konfiguracija
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-
 app.UseRouting();
 
 app.MapBlazorHub();
