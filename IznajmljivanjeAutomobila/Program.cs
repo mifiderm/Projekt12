@@ -1,45 +1,68 @@
 ﻿using IznajmljivanjeAutomobila.Data;
-using IznajmljivanjeAutomobila.Services;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
+using BCrypt.Net;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using IznajmljivanjeAutomobila.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Konfiguracija za DBContext
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Dodavanje servisa za Blazor i autorizaciju
+// Add services to the container
+builder.Services.AddAuthorizationCore(options =>
+{
+    options.AddPolicy("AuthenticatedUser", policy =>
+        policy.RequireAuthenticatedUser());
+});
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddHttpClient();
+builder.Services.AddServerSideBlazor(options =>
+{
+    options.DetailedErrors = true;
+});
 
-// Postavljanje AuthenticationStateProvider-a
-builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login";
+        options.LogoutPath = "/Logout";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = true;
+    });
+
+
+builder.Services.AddAuthorization();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddAuthorizationCore();
-
-// Postavljanje sesije
-builder.Services.AddScoped<ProtectedSessionStorage>();
+builder.Services.AddSingleton<AutomobilService>();
 
 var app = builder.Build();
 
-// Automatska migracija baze
 using (var scope = app.Services.CreateScope())
 {
-    var authProvider = scope.ServiceProvider.GetRequiredService<CustomAuthenticationStateProvider>();
-    await authProvider.InitializeAsync(); // Pozivanje inicijalizacije odmah pri pokretanju aplikacije
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+
+    if (!dbContext.Users.Any(u => u.Username == "mia.vekic"))
+    {
+        string hashedPassword = BCrypt.Net.BCrypt.HashPassword("123");
+
+        dbContext.Users.Add(new User
+        {
+            Username = "mia.vekic",
+            PasswordHash = hashedPassword
+        });
+
+        dbContext.SaveChanges();
+    }
 }
 
-
-// Inicijalizacija CustomAuthenticationStateProvider
-using (var scope = app.Services.CreateScope())
-{
-    var authProvider = scope.ServiceProvider.GetRequiredService<CustomAuthenticationStateProvider>();
-    await authProvider.InitializeAsync(); // Pozivanje inicijalizacije
-}
-
-// Middleware konfiguracija
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -48,7 +71,11 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

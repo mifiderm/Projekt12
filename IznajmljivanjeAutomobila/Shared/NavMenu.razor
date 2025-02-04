@@ -1,10 +1,10 @@
-﻿@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject NavigationManager Navigation
-@inject CustomAuthenticationStateProvider CustomAuthStateProvider
+﻿@inject NavigationManager Navigation
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">IznajmljivanjeAutomobila</a>
+        <a class="navbar-brand" href="/">IznajmljivanjeAutomobila</a>
         <button title="Navigation menu" @onclick="ToggleNavMenu" class="navbar-toggler">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -19,30 +19,30 @@
             </NavLink>
         </div>
 
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/automobili">
+                <span class="oi oi-dashboard" aria-hidden="true"></span> Automobili
+            </NavLink>
+        </div>
+
+   
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/kontakt">
+                <span class="oi oi-phone" aria-hidden="true"></span> Kontakt
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/onama">
+                <span class="oi oi-info" aria-hidden="true"></span> O nama
+            </NavLink>
+        </div>
+
         @if (isAuthenticated)
         {
-            <p>Prijavljeni ste kao: @authUser</p>
-
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/automobili">
-                    <span class="oi oi-dashboard" aria-hidden="true"></span> Automobili
-                </NavLink>
-            </div>
-
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/kontakt">
-                    <span class="oi oi-phone" aria-hidden="true"></span> Kontakt
-                </NavLink>
-            </div>
-
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/onama">
-                    <span class="oi oi-info" aria-hidden="true"></span> O nama
-                </NavLink>
-            </div>
-
-            <div class="nav-item px-3">
-                <button class="btn btn-danger" @onclick="Logout">
+                <button class="nav-link btn btn-link" @onclick="HandleLogout">
                     <span class="oi oi-account-logout" aria-hidden="true"></span> Odjava
                 </button>
             </div>
@@ -59,38 +59,29 @@
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
+    private bool isNavMenuOpen = false;
     private bool isAuthenticated = false;
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-    private string? authUser;
 
-    private async Task CheckAuthenticationState()
+    protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
-
-        if (isAuthenticated)
-        {
-            authUser = await CustomAuthStateProvider.GetCurrentUserAsync();
-        }
-
-        StateHasChanged(); // Osiguraj da se sučelje osvježi nakon promjene
     }
 
     private void ToggleNavMenu()
     {
-        collapseNavMenu = !collapseNavMenu;
+        isNavMenuOpen = !isNavMenuOpen;
     }
 
-    private async Task Logout()
-    {
-        await CustomAuthStateProvider.LogoutUserAsync(); // Koristi metodu za logout
-        await CheckAuthenticationState(); // Ažuriraj status prijave
-        Navigation.NavigateTo("/", forceLoad: true); // Preusmjeri na početnu stranicu
-    }
+    private string NavMenuCssClass => isNavMenuOpen ? "nav-menu open" : "nav-menu";
 
-    protected override async Task OnInitializedAsync()
+    private async Task HandleLogout()
     {
-        await CheckAuthenticationState(); // Provjeri status prijave odmah pri pokretanju
+        if (AuthenticationStateProvider is CustomAuthenticationStateProvider customAuthStateProvider)
+        {
+            await customAuthStateProvider.LogoutUserAsync(); // Izvršava odjavu korisnika
+            isAuthenticated = false; // Resetovanje statusa autentifikacije
+            Navigation.NavigateTo("/login", true); // Preusmjeravanje na stranicu za prijavu
+        }
     }
 }

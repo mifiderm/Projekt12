@@ -1,11 +1,11 @@
 ﻿@page "/login"
 @inject NavigationManager Navigation
+@using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@using IznajmljivanjeAutomobila.ViewModels
-@using Microsoft.AspNetCore.Components.Forms
+@using IznajmljivanjeAutomobila.Models
+@using Microsoft.AspNetCore.WebUtilities
 
-<PageTitle>Login</PageTitle>
 
 <main class="login-main">
     <div class="login-wrapper">
@@ -29,7 +29,7 @@
                 <ValidationSummary />
 
                 <div class="form-group">
-                    <InputText @bind-Value="loginModel.Email" class="form-control" placeholder="Email" required />
+                    <InputText @bind-Value="loginModel.Username" class="form-control" placeholder="Korisničko ime" required />
                 </div>
                 <div class="form-group">
                     <InputText @bind-Value="loginModel.Password" class="form-control" Type="password" placeholder="Lozinka" required />
@@ -57,11 +57,11 @@
         align-items: center;
         min-height: 100vh;
         padding: 20px;
-        backdrop-filter: blur(px); /* Zamagljivanje */
+        backdrop-filter: blur(px);
     }
 
     .login-wrapper {
-        background: rgba(255, 255, 255, 0.8); /* Lagana prozirna bela */
+        background: rgba(255, 255, 255, 0.8);
         padding: 30px;
         border-radius: 12px;
         box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
@@ -132,27 +132,31 @@
     private LoginModel loginModel = new();
     private string? errorMessage;
     private bool isUserLoggedIn = false;
+    private string? returnUrl;
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         isUserLoggedIn = authState.User.Identity?.IsAuthenticated ?? false;
 
-        if (isUserLoggedIn)
+        // Preuzimanje returnUrl iz query stringa
+        var uri = new Uri(Navigation.Uri);
+        var queryParams = QueryHelpers.ParseQuery(uri.Query);
+        if (queryParams.TryGetValue("returnUrl", out var url))
         {
-            Navigation.NavigateTo("/"); // Ako je korisnik već prijavljen, preusmjeri na početnu
+            returnUrl = url.FirstOrDefault();
         }
     }
 
     private async Task HandleLogin()
     {
         var authProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
-        bool isAuthenticated = await authProvider.LoginUserAsync(loginModel.Email, loginModel.Password);
+        bool isAuthenticated = await authProvider.LoginUserAsync(loginModel.Username, loginModel.Password);
 
         if (isAuthenticated)
         {
-            isUserLoggedIn = true;
-            Navigation.NavigateTo("/"); // Preusmjeriti na početnu nakon uspješne prijave
+            // Preusmjeri korisnika na returnUrl ili na početnu stranicu
+            Navigation.NavigateTo(returnUrl ?? "/", forceLoad: true);
         }
         else
         {
@@ -165,6 +169,12 @@
         var authProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
         await authProvider.LogoutUserAsync();
         isUserLoggedIn = false;
-        Navigation.NavigateTo("/login", true); // Ponovno učitaj login stranicu nakon odjave
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+
+    public class LoginModel
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
 }

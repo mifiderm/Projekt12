@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
 
@@ -7,7 +8,6 @@
 @code {
     private bool IsAuthenticated;
 
-    // Provjera statusa prijave
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -15,21 +15,36 @@
 
         if (!IsAuthenticated)
         {
-            // Preusmjeravanje samo ako korisnik nije prijavljen
-            Navigation.NavigateTo("/login");
+            Navigation.NavigateTo("/login", true);
         }
 
-        StateHasChanged(); // Osvježavanje UI-a nakon provjere statusa
+        StateHasChanged();
     }
 }
 
 @if (IsAuthenticated)
 {
-    <div class="hero-section text-center text-light py-5" style="background: linear-gradient(135deg, #6c757d, #343a40);">
-        <h1 class="display-4 fw-bold">Dobrodošli u Iznajmljivanje Automobila</h1>
-        <p class="lead">Najbolje mjesto za pronalazak savršenog automobila za vaše putovanje.</p>
-        <a class="btn btn-light btn-lg mt-3 shadow" href="/automobili" style="border-radius: 25px;">
-            Pregledaj ponudu automobila
-        </a>
+    <div class="hero-section text-center text-light d-flex align-items-center justify-content-center vh-100" style="background: linear-gradient(135deg, #1e3c72, #2a5298);">
+        <div class="container">
+            <h1 class="display-3 fw-bold animate-fade-in">Dobrodošli u Iznajmljivanje Automobila</h1>
+            <p class="lead animate-slide-up">Najbolje mjesto za pronalazak savršenog automobila za vaše putovanje.</p>
+            <a class="btn btn-outline-light btn-lg mt-3 shadow-lg animate-fade-in" href="/automobili" style="border-radius: 30px; padding: 12px 25px; font-size: 1.2rem;">
+                🚗 Pregledaj ponudu automobila
+            </a>
+        </div>
     </div>
+
 }
+
+<style>
+
+
+
+    .animate-fade-in {
+        animation: fadeIn 1.2s ease-out;
+    }
+
+    .animate-slide-up {
+        animation: slideUp 1.5s ease-out;
+    }
+</style>

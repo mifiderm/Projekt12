@@ -1,17 +1,15 @@
 ﻿using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.EntityFrameworkCore;
-using IznajmljivanjeAutomobila.Data;
 using BCrypt.Net;
-using IznajmljivanjeAutomobila.Models;
-using System.Collections.Generic;
+using IznajmljivanjeAutomobila.Data;
 
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly ProtectedSessionStorage _sessionStorage;
-    private bool _initialized = false;
 
     public CustomAuthenticationStateProvider(ApplicationDbContext dbContext, ProtectedSessionStorage sessionStorage)
     {
@@ -21,11 +19,6 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        if (!_initialized)
-        {
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-        }
-
         var storedUser = await _sessionStorage.GetAsync<string>("authUser");
 
         if (!storedUser.Success || string.IsNullOrEmpty(storedUser.Value))
@@ -44,55 +37,33 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         return new AuthenticationState(user);
     }
 
-    public async Task InitializeAsync()
+    public async Task<bool> LoginUserAsync(string username, string password)
     {
-        _initialized = true;
-        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
-        await Task.Delay(100); // Simulacija čekanja
-    }
-
-    public async Task<bool> LoginUserAsync(string email, string password)
-    {
-        // Provjera korisnika u bazi
-        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
-
-        if (user == null)
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Username == username);
+        if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
         {
-            return false; // Krivi email
+            return false; // Neispravna prijava
         }
 
-        // Provjera lozinke
-        bool isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
-        if (!isPasswordValid)
-        {
-            return false; // Kriva lozinka
-        }
-
-        // Ako su podaci ispravni, pohranjujemo korisnika u sesiju
-        await _sessionStorage.SetAsync("authUser", email);
+        await _sessionStorage.SetAsync("authUser", username);
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, email)
+            new Claim(ClaimTypes.Name, username)
         };
 
         var identity = new ClaimsIdentity(claims, "apiauth");
         var principal = new ClaimsPrincipal(identity);
 
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
-        return true; // Prijava je uspješna
+        return true;
     }
 
     public async Task LogoutUserAsync()
     {
-        await _sessionStorage.DeleteAsync("authUser"); // Brisanje korisnika iz sesije
-        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()))));
-    }
+        await _sessionStorage.DeleteAsync("authUser");
 
-    // Metoda za dohvat trenutnog korisnika (email) iz sesije
-    public async Task<string?> GetCurrentUserAsync()
-    {
-        var storedUser = await _sessionStorage.GetAsync<string>("authUser");
-        return storedUser.Success ? storedUser.Value : null;
+        var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(anonymousUser)));
     }
 }

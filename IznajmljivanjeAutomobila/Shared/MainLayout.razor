@@ -10,11 +10,6 @@
     <main>
         <div class="top-row px-4">
             <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-
-            @if (IsUserAuthenticated)
-            {
-                <button @onclick="HandleLogout" class="btn btn-danger">Logout</button>
-            }
         </div>
 
         <article class="content px-4">
@@ -31,20 +26,5 @@
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         IsUserAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
-
-        // Osiguranje da je stanje autentifikacije ažurirano
-        // Ovdje se ne mora ponovno pozivati NotifyAuthenticationStateChanged jer to radimo u CustomAuthenticationStateProvider
-    }
-
-    // Funkcija za odjavu korisnika
-    private async Task HandleLogout()
-    {
-        if (AuthenticationStateProvider is CustomAuthenticationStateProvider customAuthStateProvider)
-        {
-            // Pozivamo LogoutUserAsync da uklonimo korisnika iz sesije
-            await customAuthStateProvider.LogoutUserAsync();
-            // Preusmjeravanje na stranicu za prijavu
-            Navigation.NavigateTo("/login", true);
-        }
     }
 }

@@ -1,26 +1,44 @@
-﻿<CascadingAuthenticationState>
+﻿@inject NavigationManager Navigation
+
+
+<CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
-                    @if (!context.User.Identity?.IsAuthenticated ?? true)
+                    @if (!(context.User.Identity?.IsAuthenticated ?? false))
                     {
-                        <!-- Ako korisnik nije prijavljen, preusmerite ga na login stranicu -->
-                        <p role="alert">Niste prijavljeni. <a href="/login">Prijavite se</a>.</p>
+                        <!-- Neprijavljen korisnik -->
+                        <div class="lux-container">
+                            <div class="lux-title">Niste prijavljeni</div>
+                            <p>Molimo vas da se prijavite kako biste nastavili.</p>
+                            <a class="lux-btn"
+                               href="/login?returnUrl=@Uri.EscapeDataString(Navigation.ToBaseRelativePath(Navigation.Uri))">
+                                Prijavite se
+                            </a>
+                        </div>
                     }
                     else
                     {
-                        <!-- Ako korisnik nema dozvolu za ovu stranicu -->
-                        <p role="alert">Nemate dozvolu za pristup ovoj stranici.</p>
+                        <!-- Nema dozvolu -->
+                        <div class="lux-container">
+                            <div class="lux-title">Pristup odbijen</div>
+                            <p>Nemate dozvolu za ovu stranicu.</p>
+                        </div>
                     }
                 </NotAuthorized>
             </AuthorizeRouteView>
+
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
+
         <NotFound>
-            <PageTitle>Not found</PageTitle>
+            <PageTitle>Stranica nije pronađena</PageTitle>
             <LayoutView Layout="@typeof(MainLayout)">
-                <p role="alert">Žao nam je, ali tražena stranica nije pronađena.</p>
+                <div class="lux-container">
+                    <div class="lux-title">Ups! Stranica nije pronađena</div>
+                    <p>Čini se da tražena stranica ne postoji.</p>
+                </div>
             </LayoutView>
         </NotFound>
     </Router>

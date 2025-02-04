@@ -16,6 +16,7 @@ namespace IznajmljivanjeAutomobila.Data
         public DbSet<Upit> Upiti { get; set; }
         public DbSet<User> Users { get; set; }
 
+
         // Konfiguracija za entitete
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,7 +29,7 @@ namespace IznajmljivanjeAutomobila.Data
             modelBuilder.Entity<User>().HasData(new User
             {
                 Id = 1,
-                Email = "mia.vekic82@gmail.com",
+                Username = "mia.vekic",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("123") // Hashirana lozinka
             });
         }
