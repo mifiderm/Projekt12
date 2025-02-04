@@ -30,7 +30,6 @@
 
                 <div class="form-group">
                     <InputText @bind-Value="loginModel.Email" class="form-control" placeholder="Email" required />
-
                 </div>
                 <div class="form-group">
                     <InputText @bind-Value="loginModel.Password" class="form-control" Type="password" placeholder="Lozinka" required />
@@ -41,6 +40,7 @@
         }
     </div>
 </main>
+
 <style>
     body {
         font-family: 'Arial', sans-serif;
@@ -127,6 +127,7 @@
         margin-bottom: 20px;
     }
 </style>
+
 @code {
     private LoginModel loginModel = new();
     private string? errorMessage;
@@ -145,8 +146,8 @@
 
         if (isAuthenticated)
         {
-            // Ovdje uklanjamo 'forceLoad: true' kako bismo izbjegli ponovno učitavanje
-            Navigation.NavigateTo("/", true); // true osigurava da će stranica biti preusmjerena
+            isUserLoggedIn = true; // Ažuriraj stanje prijave
+            Navigation.NavigateTo("/", false); // false umjesto true za izbjegavanje ponovnog učitavanja
         }
         else
         {
@@ -159,9 +160,6 @@
         var authProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
         await authProvider.LogoutUserAsync();
         isUserLoggedIn = false;
-
-        // Ovdje također koristi NavigateTo bez forceLoad
-        Navigation.NavigateTo("/login", true);
+        Navigation.NavigateTo("/login", true); // true kako bi se stranica učitala nakon odjave
     }
-
 }
