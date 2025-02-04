@@ -1,0 +1,58 @@
+﻿@page "/AutoDetalji/{NazivAuta}"
+@using IznajmljivanjeAutomobila.Models
+@using IznajmljivanjeAutomobila.Services
+@inject NavigationManager NavigationManager
+@inject AutomobilService AutomobilService
+@using Newtonsoft.Json
+
+
+<h3>Detalji o Automobilu</h3>
+
+@if (automobil == null)
+{
+    <p>Molimo odaberite automobil s popisa kako biste vidjeli detalje.</p>
+}
+else
+{
+    <div>
+        <img src="@automobil.GlavnaSlika" alt="@automobil.Naziv" class="img-fluid mb-3">
+        <h4>@automobil.Naziv</h4>
+        <p>@automobil.Opis</p>
+
+        <h5>Dodatne slike:</h5>
+        <div class="d-flex flex-wrap gap-3">
+            @if (automobil.DodatneSlike != null && automobil.DodatneSlike.Any())
+            {
+                var slike = JsonConvert.DeserializeObject<List<string>>(automobil.DodatneSlike);
+                @foreach (var dodatnaSlika in slike)
+                {
+                    <img src="@dodatnaSlika" alt="Dodatna slika" class="img-thumbnail" style="width: 200px; height: auto;">
+                }
+            }
+            else
+            {
+                <p>Nema dodatnih slika za ovaj automobil.</p>
+            }
+        </div>
+    </div>
+}
+
+<button class="btn btn-primary mt-3" @onclick="VratiNazad">Natrag</button>
+
+@code {
+    [Parameter] public string? NazivAuta { get; set; }
+    private Automobil? automobil;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(NazivAuta))
+        {
+            automobil = await AutomobilService.GetAutomobilByNazivAsync(NazivAuta);
+        }
+    }
+
+    private void VratiNazad()
+    {
+        NavigationManager.NavigateTo("/automobili");
+    }
+}

@@ -1,0 +1,85 @@
+﻿@page "/login"
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using IznajmljivanjeAutomobila.ViewModels
+@using Microsoft.AspNetCore.Components.Forms
+
+<PageTitle>Login</PageTitle>
+
+<div class="container mt-5">
+    <h3>Login</h3>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    @if (isUserLoggedIn)
+    {
+        <p class="text-success">Već ste prijavljeni.</p>
+        <button @onclick="HandleLogout" class="btn btn-danger btn-block mt-4">Odjava</button>
+    }
+    else
+    {
+        <EditForm Model="loginModel" OnValidSubmit="HandleLogin" class="login-form">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <InputText @bind-Value="loginModel.Email" class="form-control" placeholder="Email" required />
+            </div>
+
+            <div class="form-group">
+                <InputText @bind-Value="loginModel.Password" type="password" class="form-control" placeholder="Lozinka" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block mt-4">Prijava</button>
+        </EditForm>
+    }
+</div>
+
+<style>
+    /* Tvoj CSS ostaje nepromijenjen */
+</style>
+
+@code {
+    private LoginModel loginModel = new();
+    private string? errorMessage;
+    private bool isUserLoggedIn = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isUserLoggedIn = authState.User.Identity?.IsAuthenticated ?? false;
+    }
+
+    private async Task HandleLogin()
+    {
+        var authProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+        bool isAuthenticated = await authProvider.LoginUserAsync(loginModel.Email, loginModel.Password);
+
+        if (isAuthenticated)
+        {
+            Navigation.NavigateTo("/", forceLoad: true);
+        }
+        else
+        {
+            errorMessage = "Pogrešan email ili lozinka.";
+        }
+    }
+
+    private async Task HandleLogout()
+    {
+        var authProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+        await authProvider.LogoutUserAsync();
+        isUserLoggedIn = false;
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+
+    public class LoginModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}

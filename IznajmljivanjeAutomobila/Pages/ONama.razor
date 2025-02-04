@@ -1,0 +1,51 @@
+﻿@page "/onama"
+@attribute [Authorize]
+
+<PageTitle>O nama - Autoinzg</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="container mt-5">
+            <h3 class="text-center mb-4">O nama</h3>
+
+            <p class="text-center">
+                Dobrodošli u <strong>Autoinzg</strong> – vašu pouzdanu destinaciju za najam vozila! S ponosom nudimo širok izbor automobila
+                za kratkoročni i dugoročni najam, prilagođenih svim vašim potrebama.
+            </p>
+
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <h4 class="text-center mt-4 mb-3">Naša ponuda</h4>
+                    <p>
+                        Naša ponuda uključuje vozila svih tipova – od gradskih automobila, SUV-ova, do luksuznih limuzina,
+                        osiguravajući vam savršen odabir za svaku priliku. Kroz jednostavan proces rezervacije i fleksibilne uvjete najma,
+                        garantiramo da ćete uživati u svakom putovanju.
+                    </p>
+                </div>
+            </div>
+
+            <h4 class="text-center mt-4 mb-3">Zašto odabrati nas?</h4>
+            <ul class="list-unstyled text-center">
+                <li><strong>Širok izbor automobila:</strong> Od ekonomskih do luksuznih vozila.</li>
+                <li><strong>Jednostavna rezervacija:</strong> Brza online rezervacija.</li>
+                <li><strong>Povoljne cijene:</strong> Najbolji omjer cijene i kvalitete.</li>
+            </ul>
+
+            <p class="text-center mt-4">
+                Zahvaljujući našoj floti vozila koja se redovito održava i našoj korisničkoj podršci koja je uvijek na raspolaganju,
+                <strong>Autoinzg</strong> je vaš najbolji izbor za najam automobila.
+            </p>
+        </div>
+    </Authorized>
+
+    <NotAuthorized>
+        <div class="container text-center mt-5">
+            <h2>Molimo vas da se prijavite za pristup ovoj stranici.</h2>
+            <p><a href="/login" class="btn btn-light btn-lg shadow" style="border-radius: 25px;">Prijavite se</a></p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+<div class="footer-section text-center text-light py-4 mt-5" style="background-color: #343a40;">
+    <p class="mb-0">© 2025 Autoinzg. Sva prava pridržana.</p>
+</div>

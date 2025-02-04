@@ -1,9 +1,72 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Dobrodošli u Iznajmljivanje Automobila</PageTitle>
 
-<h1>Hello, world!</h1>
+@code {
+    private bool IsAuthenticated;
 
-Welcome to your new app.
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        IsAuthenticated = authState?.User?.Identity?.IsAuthenticated ?? false;
+    }
+}
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@if (IsAuthenticated)
+{
+    <div class="hero-section text-center text-light py-5" style="background: linear-gradient(135deg, #6c757d, #343a40);">
+        <h1 class="display-4 fw-bold">Dobrodošli u Iznajmljivanje Automobila</h1>
+        <p class="lead">Najbolje mjesto za pronalazak savršenog automobila za vaše putovanje.</p>
+        <a class="btn btn-light btn-lg mt-3 shadow" href="/automobili" style="border-radius: 25px;">
+            Pregledaj ponudu automobila
+        </a>
+    </div>
+
+    <div class="container text-center mt-5">
+        <h2 class="mb-4 fw-bold">Zašto odabrati nas?</h2>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+                    <img src="auti/car3.png" class="card-img-top" alt="Automobil" style="border-radius: 15px 15px 0 0;" />
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Širok izbor automobila</h5>
+                        <p class="card-text text-secondary">Od gradskih automobila do luksuznih limuzina, imamo sve!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+                    <img src="auti/Car2.png" class="card-img-top" alt="Rezervacija" style="border-radius: 15px 15px 0 0;" />
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Jednostavna rezervacija</h5>
+                        <p class="card-text text-secondary">Rezervirajte online u samo nekoliko klikova.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+                    <img src="auti/car1.png" class="card-img-top" alt="Povoljno" style="border-radius: 15px 15px 0 0;" />
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Povoljne cijene</h5>
+                        <p class="card-text text-secondary">Najbolji omjer cijene i kvalitete na tržištu.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-section text-center text-light py-4 mt-5" style="background-color: #343a40;">
+        <p class="mb-0">© 2025 Iznajmljivanje Automobila. Sva prava pridržana.</p>
+    </div>
+}
+else
+{
+    <div class="container text-center mt-5">
+        <h2>Molimo vas da se prijavite za pristup našoj ponudi automobila.</h2>
+        <p><a href="/login" class="btn btn-light btn-lg shadow" style="border-radius: 25px;">Prijavite se</a></p>
+        <p class="mt-3">Nemate račun? <a href="/register" class="text-decoration-none">Registrirajte se</a></p>
+    </div>
+}

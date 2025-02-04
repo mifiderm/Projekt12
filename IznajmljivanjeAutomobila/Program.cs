@@ -2,13 +2,15 @@ using IznajmljivanjeAutomobila.Data;  // Za ApplicationDbContext
 using Microsoft.EntityFrameworkCore;  // Za korištenje Entity Framework Core
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using IznajmljivanjeAutomobila.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddScoped<AutomobilService>();
+
 
 // Dodaj ApplicationDbContext sa vezom prema bazi podataka
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

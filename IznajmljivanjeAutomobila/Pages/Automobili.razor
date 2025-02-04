@@ -1,0 +1,50 @@
+﻿@page "/automobili"
+@using Microsoft.EntityFrameworkCore
+@using IznajmljivanjeAutomobila.Data
+@inject NavigationManager NavigationManager
+@using IznajmljivanjeAutomobila.Models
+@attribute [Authorize]
+
+<AuthorizeView>
+    <Authorized>
+        <h3>Naša Ponuda</h3>
+
+        <div class="d-flex justify-content-around flex-wrap">
+            <div class="card" style="width: 18rem; cursor: pointer;" @onclick="@(() => NavigirajNaAutoDetalje("VW Golf 7"))">
+                <img src="/auti/Golf7.jpg" class="card-img-top" alt="VW Golf 7">
+                <div class="card-body text-center">
+                    <h5 class="card-title">VW Golf 7</h5>
+                </div>
+            </div>
+
+            <div class="card" style="width: 18rem; cursor: pointer;" @onclick="@(() => NavigirajNaAutoDetalje("Škoda Octavia"))">
+                <img src="auti/SkodaOctavia.jpg" class="card-img-top" alt="Škoda Octavia">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Škoda Octavia</h5>
+                </div>
+            </div>
+
+            <div class="card" style="width: 18rem; cursor: pointer;" @onclick="@(() => NavigirajNaAutoDetalje("Audi A6"))">
+                <img src="auti/naslovna.jpg" class="card-img-top" alt="Audi A6">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Audi A6</h5>
+                </div>
+            </div>
+        </div>
+    </Authorized>
+
+    <NotAuthorized>
+        <div class="container text-center mt-5">
+            <h2>Molimo vas da se prijavite za pristup ovoj stranici.</h2>
+            <p><a href="/login" class="btn btn-light btn-lg shadow" style="border-radius: 25px;">Prijavite se</a></p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private void NavigirajNaAutoDetalje(string nazivAuta)
+    {
+        // Provjerite je li nazivAuta validan za URL i izvršite navigaciju
+        NavigationManager.NavigateTo($"/AutoDetalji/{Uri.EscapeDataString(nazivAuta)}");
+    }
+}

@@ -1,7 +1,11 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@inject CustomAuthenticationStateProvider CustomAuthStateProvider
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">IznajmljivanjeAutomobila</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+        <button title="Navigation menu" @onclick="ToggleNavMenu" class="navbar-toggler">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
@@ -10,30 +14,83 @@
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
+            <NavLink class="nav-link" href="/">
+                <span class="oi oi-home" aria-hidden="true"></span> Naslovna
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </div>
+
+        @if (isAuthenticated)
+        {
+            <p>Prijavljeni ste kao: @authUser</p>
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/automobili">
+                    <span class="oi oi-dashboard" aria-hidden="true"></span> Automobili
+                </NavLink>
+            </div>
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/kontakt">
+                    <span class="oi oi-phone" aria-hidden="true"></span> Kontakt
+                </NavLink>
+            </div>
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/onama">
+                    <span class="oi oi-info" aria-hidden="true"></span> O nama
+                </NavLink>
+            </div>
+
+            <div class="nav-item px-3">
+                <button class="btn btn-danger" @onclick="Logout">
+                    <span class="oi oi-account-logout" aria-hidden="true"></span> Odjava
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/login">
+                    <span class="oi oi-account-login" aria-hidden="true"></span> Prijava
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
-
+    private bool isAuthenticated = false;
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string? authUser;
+
+    private async Task CheckAuthenticationState()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+
+        if (isAuthenticated)
+        {
+            // Pozivamo novu metodu za dohvat korisničkog emaila
+            authUser = await CustomAuthStateProvider.GetCurrentUserAsync();
+        }
+
+        StateHasChanged();
+    }
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task Logout()
+    {
+        await CustomAuthStateProvider.LogoutUserAsync(); // Koristi metodu za logout
+        Navigation.NavigateTo("/", forceLoad: true); // Preusmjeri na početnu
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CheckAuthenticationState(); // Provjeravamo status korisnika pri inicijalizaciji
     }
 }
