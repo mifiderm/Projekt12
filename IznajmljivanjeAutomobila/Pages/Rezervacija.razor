@@ -1,0 +1,75 @@
+﻿@page "/reservation"
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using IznajmljivanjeAutomobila.Data
+@using IznajmljivanjeAutomobila.Models
+@using IznajmljivanjeAutomobila.Services
+
+@inject VehicleReservationService ReservationService
+
+<h3 class="text-center mb-4">Rezervacija Vozila</h3>
+
+@if (reservationSuccess)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Uspješno ste rezervirali vozilo!</strong> Hvala na vašoj rezervaciji.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<EditForm Model="@reservation" OnValidSubmit="HandleReservation">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="customerName" class="form-label">Ime korisnika</label>
+        <InputText id="customerName" class="form-control" @bind-Value="reservation.CustomerName" placeholder="Unesite ime korisnika" />
+    </div>
+
+    <div class="mb-3">
+        <label for="vehicleType" class="form-label">Tip vozila</label>
+        <InputText id="vehicleType" class="form-control" @bind-Value="reservation.VehicleType" placeholder="Unesite tip vozila" />
+    </div>
+
+    <div class="mb-3">
+        <label for="pickupLocation" class="form-label">Lokacija preuzimanja</label>
+        <InputText id="pickupLocation" class="form-control" @bind-Value="reservation.PickupLocation" placeholder="Unesite lokaciju preuzimanja" />
+    </div>
+
+    <div class="mb-3">
+        <label for="returnLocation" class="form-label">Lokacija vraćanja</label>
+        <InputText id="returnLocation" class="form-control" @bind-Value="reservation.ReturnLocation" placeholder="Unesite lokaciju vraćanja" />
+    </div>
+
+    <div class="mb-3">
+        <label for="pickupDate" class="form-label">Datum preuzimanja</label>
+        <InputDate id="pickupDate" class="form-control" @bind-Value="reservation.PickupDate" placeholder="Odaberite datum preuzimanja" />
+    </div>
+
+    <div class="mb-3">
+        <label for="returnDate" class="form-label">Datum vraćanja</label>
+        <InputDate id="returnDate" class="form-control" @bind-Value="reservation.ReturnDate" placeholder="Odaberite datum vraćanja" />
+    </div>
+
+    <button type="submit" class="btn btn-success w-100">Rezervirajte vozilo</button>
+</EditForm>
+
+@code {
+    private VehicleReservation reservation = new VehicleReservation();
+    private bool reservationSuccess = false;
+
+    private async Task HandleReservation()
+    {
+        // Dodavanje rezervacije putem servisa
+        await ReservationService.AddReservationAsync(reservation);
+        Console.WriteLine($"Rezervacija uspješna za korisnika: {reservation.CustomerName}");
+
+        // Postavljanje poruke o uspješnoj rezervaciji
+        reservationSuccess = true;
+
+        // Isprazni formu
+        reservation = new VehicleReservation();
+    }
+}

@@ -16,7 +16,7 @@ namespace IznajmljivanjeAutomobila.Data
         public DbSet<Upit> Upiti { get; set; }
         public DbSet<User> Users { get; set; }
 
-
+        public DbSet<VehicleReservation> VehicleReservations { get; set; } // Ovo je naša tabela rezervacija
         // Konfiguracija za entitete
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

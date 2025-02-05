@@ -10,6 +10,8 @@ using IznajmljivanjeAutomobila.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
+builder.Services.AddScoped<VehicleReservationService>();
+
 builder.Services.AddAuthorizationCore(options =>
 {
     options.AddPolicy("AuthenticatedUser", policy =>
