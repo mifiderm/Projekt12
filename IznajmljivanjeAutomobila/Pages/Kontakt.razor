@@ -59,7 +59,7 @@
                     <InputText @bind-Value="noviUpit.Ime" class="form-control" placeholder="Vaše ime" required />
                 </div>
                 <div class="mb-3">
-                    <InputText @bind-Value="noviUpit.Email" class="form-control" placeholder="Vaš email" required />
+                    <InputText @bind-Value="noviUpit.Username" class="form-control" placeholder="Vaš username" required />
                 </div>
                 <div class="mb-3">
                     <InputTextArea @bind-Value="noviUpit.Poruka" class="form-control" rows="4" placeholder="Vaša poruka" required />
@@ -98,9 +98,11 @@
     {
         try
         {
+            Console.WriteLine("Pozvana metoda SpremiUpit");
             noviUpit.Datum = DateTime.Now;
             DbContext.Upiti.Add(noviUpit);
             await DbContext.SaveChangesAsync();
+            Console.WriteLine("Upit spremljen u bazu!");
 
             successMessage = "Vaš upit je uspješno poslan. Hvala što ste nas kontaktirali!";
             noviUpit = new Models.Upit();

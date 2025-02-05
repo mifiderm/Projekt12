@@ -4,6 +4,7 @@ using IznajmljivanjeAutomobila.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IznajmljivanjeAutomobila.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250205003637_username")]
+    partial class username
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,20 +52,23 @@ namespace IznajmljivanjeAutomobila.Migrations
 
             modelBuilder.Entity("IznajmljivanjeAutomobila.Models.Upit", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("AutomobilId")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("Datum")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Ime")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Poruka")
                         .HasColumnType("nvarchar(max)");
@@ -101,7 +107,7 @@ namespace IznajmljivanjeAutomobila.Migrations
                         new
                         {
                             Id = 1,
-                            PasswordHash = "$2a$10$NOPjT0qYLxXeB4uy2ylvJOV5qPwkD8WMADXhDSFgwBy8uY5TZFNiy",
+                            PasswordHash = "$2a$10$v3xuZidJdQH5gNgiOpWPFuVbXZui0Qw0UU5zhVNDFY2Dxg0ZD4hvq",
                             Username = "mia.vekic"
                         });
                 });
@@ -110,7 +116,9 @@ namespace IznajmljivanjeAutomobila.Migrations
                 {
                     b.HasOne("IznajmljivanjeAutomobila.Models.Automobil", "Automobil")
                         .WithMany()
-                        .HasForeignKey("AutomobilId");
+                        .HasForeignKey("AutomobilId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Automobil");
                 });
