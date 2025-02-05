@@ -6,11 +6,11 @@
 @using IznajmljivanjeAutomobila.Data
 @using IznajmljivanjeAutomobila.Models
 @using IznajmljivanjeAutomobila.Services
-
+@attribute [Authorize]
 
 @inject VehicleReservationService ReservationService
 
-<h3 class="text-center mb-4">Rezervacija Vozila</h3>
+<h3 class="text-center text-primary mb-4">Rezervacija Vozila</h3>
 
 @if (reservationSuccess)
 {
@@ -26,35 +26,37 @@
 
     <div class="mb-3">
         <label for="customerName" class="form-label">Ime korisnika</label>
-        <InputText id="customerName" class="form-control" @bind-Value="reservation.CustomerName" placeholder="Unesite ime korisnika" />
+        <InputText id="customerName" class="form-control shadow-sm" @bind-Value="reservation.CustomerName" placeholder="Unesite ime korisnika" />
     </div>
 
     <div class="mb-3">
         <label for="vehicleType" class="form-label">Tip vozila</label>
-        <InputText id="vehicleType" class="form-control" @bind-Value="reservation.VehicleType" placeholder="Unesite tip vozila" />
+        <InputText id="vehicleType" class="form-control shadow-sm" @bind-Value="reservation.VehicleType" placeholder="Unesite tip vozila" />
     </div>
 
     <div class="mb-3">
         <label for="pickupLocation" class="form-label">Lokacija preuzimanja</label>
-        <InputText id="pickupLocation" class="form-control" @bind-Value="reservation.PickupLocation" placeholder="Unesite lokaciju preuzimanja" />
+        <InputText id="pickupLocation" class="form-control shadow-sm" @bind-Value="reservation.PickupLocation" placeholder="Unesite lokaciju preuzimanja" />
     </div>
 
     <div class="mb-3">
         <label for="returnLocation" class="form-label">Lokacija vraćanja</label>
-        <InputText id="returnLocation" class="form-control" @bind-Value="reservation.ReturnLocation" placeholder="Unesite lokaciju vraćanja" />
+        <InputText id="returnLocation" class="form-control shadow-sm" @bind-Value="reservation.ReturnLocation" placeholder="Unesite lokaciju vraćanja" />
     </div>
 
     <div class="mb-3">
         <label for="pickupDate" class="form-label">Datum preuzimanja</label>
-        <InputDate id="pickupDate" class="form-control" @bind-Value="reservation.PickupDate" placeholder="Odaberite datum preuzimanja" />
+        <InputDate id="pickupDate" class="form-control shadow-sm" @bind-Value="reservation.PickupDate" placeholder="Odaberite datum preuzimanja" />
     </div>
 
     <div class="mb-3">
         <label for="returnDate" class="form-label">Datum vraćanja</label>
-        <InputDate id="returnDate" class="form-control" @bind-Value="reservation.ReturnDate" placeholder="Odaberite datum vraćanja" />
+        <InputDate id="returnDate" class="form-control shadow-sm" @bind-Value="reservation.ReturnDate" placeholder="Odaberite datum vraćanja" />
     </div>
 
-    <button type="submit" class="btn btn-success w-100">Rezervirajte vozilo</button>
+    <button type="submit" class="btn btn-success w-100 shadow-sm">
+        <i class="bi bi-car-front"></i> Rezervirajte vozilo
+    </button>
 </EditForm>
 
 @code {
