@@ -1,0 +1,68 @@
+﻿@page "/pregled-upita"
+@using Microsoft.EntityFrameworkCore
+@inject IServiceScopeFactory ScopeFactory
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using IznajmljivanjeAutomobila.Data
+
+<PageTitle>Pregled Upita</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="container mt-5">
+            <h2 class="text-center fw-bold">Pregled Upita</h2>
+
+            @if (upiti == null)
+            {
+                <p class="text-center">Učitavanje podataka...</p>
+            }
+            else if (!upiti.Any())
+            {
+                <p class="text-center">Nema dostupnih upita.</p>
+            }
+            else
+            {
+                <table class="table table-striped mt-4">
+                    <thead>
+                        <tr>
+                            <th>Ime</th>
+                            <th>Username</th>
+                            <th>Poruka</th>
+                            <th>Datum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var upit in upiti)
+                        {
+                            <tr>
+                                <td>@upit.Ime</td>
+                                <td>@upit.Username</td>
+                                <td>@upit.Poruka</td>
+                                <td>@(upit.Datum?.ToString("dd.MM.yyyy HH:mm"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </Authorized>
+
+    <NotAuthorized>
+        <div class="container text-center mt-5">
+            <h2>Molimo vas da se prijavite za pristup ovoj stranici.</h2>
+            <p><a href="/login" class="btn btn-dark btn-lg shadow">Prijavite se</a></p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private List<Models.Upit> upiti = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        upiti = await dbContext.Upiti.OrderByDescending(u => u.Datum).ToListAsync();
+    }
+}

@@ -105,10 +105,14 @@
 
             successMessage = "Vaš upit je uspješno poslan. Hvala što ste nas kontaktirali!";
             noviUpit = new Models.Upit();
+
+            // Ako koristiš Blazor, osiguraj da se UI osvježi
+            StateHasChanged();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Greška pri spremanju upita: {ex.Message}");
         }
     }
+
 }
